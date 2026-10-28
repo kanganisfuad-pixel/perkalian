@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Perkalian dan Pembagian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* 3D Button Styles */
+        .btn-3d {
+            transition: all 0.1s ease-in-out;
+            box-shadow: 0 6px 0px rgba(0,0,0,0.2);
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0px rgba(0,0,0,0.2);
+        }
+        .btn-3d-blue { background-color: #3b82f6; border-bottom: 4px solid #2563eb; color: white; }
+        .btn-3d-green { background-color: #22c55e; border-bottom: 4px solid #16a34a; color: white; }
+        .btn-3d-yellow { background-color: #eab308; border-bottom: 4px solid #ca8a04; color: white; }
+        .btn-3d-purple { background-color: #a855f7; border-bottom: 4px solid #9333ea; color: white; }
+        .btn-3d-orange { background-color: #f97316; border-bottom: 4px solid #ea580c; color: white; }
+
+        .btn-option {
+            background-color: white;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 4px 0px #94a3b8;
+            color: #334155;
+            transition: all 0.1s;
+        }
+        .btn-option:hover {
+            background-color: #f8fafc;
+            border-color: #94a3b8;
+        }
+        .btn-option:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0px #94a3b8;
+        }
+
+        /* Animations */
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-bounce-slow { animation: bounce-slow 3s infinite; }
+        
+        @keyframes pop-in {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop-in { animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* Mascot styling */
+        .mascot-shadow { filter: drop-shadow(0 10px 8px rgba(0,0,0,0.2)); }
+
+        /* Hide elements on print */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            body > *:not(#certificate-print) { display: none !important; }
+            body { background: white !important; margin: 0; padding: 0; }
+            #certificate-print { 
+                display: flex !important; 
+                position: fixed;
+                top: 0; left: 0;
+                width: 100vw; height: 100vh;
+                align-items: center; justify-content: center;
+                background: white !important;
+                padding: 10mm;
+                box-sizing: border-box;
+            }
+            #certificate-print > div {
+                width: 100%;
+                height: 100%;
+            }
+            @page { size: A4 landscape; margin: 0; }
+        }
+
+        /* Confetti Canvas */
+        #confetti-canvas { pointer-events: none; position: fixed; top: 0; left: 0; z-index: 100; width: 100%; height: 100%; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Confetti Overlay -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Main Container -->
+    <div id="app" class="max-w-4xl mx-auto p-4 md:p-6 min-h-screen flex flex-col justify-center print:hidden">
+        
+        <!-- ================= START SCREEN ================= -->
+        <div id="screen-start" class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border-4 border-white text-center animate-pop-in relative overflow-hidden">
+            <!-- Decorative shapes -->
+            <div class="absolute -top-10 -left-10 w-32 h-32 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+            
+            <h1 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2 drop-shadow-sm">
+                🌟 PETUALANGAN 🌟<br>PERKALIAN & PEMBAGIAN
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 font-bold mb-6">Game Matematika Kelas IV SD / Fase B</p>
+
+            <div class="flex justify-center mb-6">
+                <!-- Simple SVG Mascot -->
+                <svg class="w-32 h-32 mascot-shadow animate-bounce-slow" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" fill="#FCD34D"/>
+                    <circle cx="35" cy="40" r="8" fill="#1E293B"/>
+                    <circle cx="65" cy="40" r="8" fill="#1E293B"/>
+                    <path d="M 30 65 Q 50 85 70 65" stroke="#1E293B" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M 10 30 L 30 10 M 90 30 L 70 10" stroke="#F59E0B" stroke-width="8" stroke-linecap="round"/>
+                    <text x="50" y="25" text-anchor="middle" font-size="16" font-weight="bold" fill="#B45309">+-x÷</text>
+                </svg>
+            </div>
+
+            <div class="max-w-md mx-auto space-y-4 bg-blue-50 p-6 rounded-2xl border-2 border-blue-100">
+                <p class="text-sm font-bold text-blue-800 mb-2">Isi data dirimu sebelum memulai petualangan!</p>
+                <div>
+                    <input type="text" id="input-name" placeholder="Nama Lengkap Kamu" class="w-full px-4 py-3 rounded-xl border-2 border-blue-200 focus:border-blue-500 focus:outline-none text-lg font-bold text-center">
+                </div>
+                <div>
+                    <input type="text" id="input-school" placeholder="Nama Sekolah (Contoh: SDN 1 Merdeka)" class="w-full px-4 py-3 rounded-xl border-2 border-blue-200 focus:border-blue-500 focus:outline-none text-lg font-bold text-center">
+                </div>
+                <p id="start-error" class="text-red-500 text-sm font-bold hidden">Ups! Nama dan Sekolah harus diisi ya.</p>
+            </div>
+
+            <div class="mt-8 flex flex-col md:flex-row justify-center items-center gap-4">
+                <button onclick="startGame()" class="btn-3d btn-3d-blue text-2xl px-10 py-4 rounded-2xl font-black w-full md:w-auto flex items-center justify-center gap-2">
+                    🚀 MULAI BERMAIN
+                </button>
+            </div>
+            
+            <div class="mt-6 flex justify-center gap-4">
+                <button onclick="toggleSound()" id="btn-sound" class="btn-3d btn-3d-yellow p-3 rounded-full flex items-center justify-center">
+                    🔊 SUARA ON
+                </button>
+                <button onclick="toggleFullScreen()" class="btn-3d btn-3d-purple p-3 rounded-full flex items-center justify-center">
+                    ⛶ LAYAR PENUH
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= GAME SCREEN ================= -->
+        <div id="screen-game" class="hidden h-full flex flex-col">
+            <!-- Header Status -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg mb-4 flex justify-between items-center border-b-4 border-blue-300">
+                <div class="flex items-center gap-2">
+                    <div id="level-badge" class="bg-blue-500 text-white px-3 py-1 rounded-lg font-bold text-sm md:text-base shadow-sm">Level 1</div>
+                    <div class="font-bold text-slate-700 text-sm md:text-lg">Soal: <span id="q-counter">1/30</span></div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="font-black text-xl md:text-2xl text-yellow-500 drop-shadow-sm flex items-center gap-1">
+                        ⭐ <span id="score-display">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Bar -->
+            <div class="w-full bg-slate-200 h-4 rounded-full mb-4 overflow-hidden shadow-inner border-2 border-white">
+                <div id="timer-bar" class="bg-green-500 h-full w-full transition-all duration-1000 ease-linear"></div>
+            </div>
+
+            <!-- Question Area -->
+            <div class="flex-grow flex flex-col">
+                <div class="bg-white rounded-3xl p-6 md:p-10 shadow-xl border-4 border-white flex-grow flex flex-col justify-center relative">
+                    <div id="level-title" class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-orange-400 to-red-400 text-white px-6 py-1 rounded-full font-bold shadow-md text-sm md:text-base border-2 border-white">
+                        PENJELAJAH ANGKA
+                    </div>
+                    <h2 id="question-text" class="text-3xl md:text-4xl lg:text-5xl font-black text-center text-slate-700 mb-8 leading-tight">
+                        24 × 3 = ....
+                    </h2>
+                    
+                    <!-- Options Grid -->
+                    <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-auto">
+                        <!-- Buttons populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= FEEDBACK MODAL ================= -->
+        <div id="modal-feedback" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div id="feedback-box" class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center transform scale-95 transition-transform duration-300 border-8 border-white">
+                <div id="feedback-icon" class="text-6xl mb-4">🎉</div>
+                <h3 id="feedback-title" class="text-3xl font-black mb-2">HEBAT!</h3>
+                <p id="feedback-message" class="text-lg text-slate-600 font-bold mb-4">Jawabanmu Benar!</p>
+                <div class="bg-slate-100 p-4 rounded-xl mb-6 text-left">
+                    <p class="text-sm font-bold text-slate-500 mb-1">Pembahasan:</p>
+                    <p id="feedback-explanation" class="text-slate-700 font-semibold">24 dikali 3 sama dengan 72.</p>
+                </div>
+                <button onclick="nextQuestion()" class="btn-3d btn-3d-blue w-full py-3 rounded-xl font-bold text-xl">
+                    LANJUTKAN ➔
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= RESULT SCREEN ================= -->
+        <div id="screen-result" class="hidden bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-10 shadow-2xl border-4 border-white text-center">
+            <h1 class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-blue-500 mb-4 drop-shadow-sm">
+                🎉 SELAMAT, PETUALANG! 🎉
+            </h1>
+            
+            <div class="bg-blue-50 p-6 rounded-3xl border-2 border-blue-200 mb-6 flex flex-col md:flex-row items-center justify-center gap-8">
+                <div class="text-center">
+                    <p class="text-slate-500 font-bold text-lg">Skor Akhir</p>
+                    <p id="result-score" class="text-6xl font-black text-yellow-500 drop-shadow-md">300</p>
+                </div>
+                <div class="w-full md:w-px h-px md:h-24 bg-blue-200"></div>
+                <div class="text-left space-y-2">
+                    <p class="font-bold text-lg"><span class="text-slate-500">Nama:</span> <span id="res-name" class="text-blue-700">Budi</span></p>
+                    <p class="font-bold text-lg"><span class="text-slate-500">Sekolah:</span> <span id="res-school" class="text-blue-700">SDN 1</span></p>
+                    <p class="font-bold text-lg"><span class="text-slate-500">Benar:</span> <span id="res-correct" class="text-green-600">30</span> | <span class="text-slate-500">Salah:</span> <span id="res-wrong" class="text-red-500">0</span></p>
+                    <p class="font-bold text-lg"><span class="text-slate-500">Nilai (Skala 100):</span> <span id="res-percent" class="text-purple-600">100</span></p>
+                </div>
+            </div>
+
+            <div id="result-predicate-box" class="bg-gradient-to-r from-green-400 to-emerald-500 p-4 rounded-xl text-white font-black text-2xl mb-8 shadow-md">
+                Predikat: Sangat Hebat!
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                <button onclick="prepareAndPrintCertificate()" class="btn-3d btn-3d-yellow py-4 rounded-2xl font-black text-xl flex items-center justify-center gap-2">
+                    🖨️ CETAK / UNDUH PDF
+                </button>
+                <button onclick="showReview()" class="btn-3d btn-3d-blue py-4 rounded-2xl font-black text-xl flex items-center justify-center gap-2">
+                    🔍 TINJAU JAWABAN
+                </button>
+                <button onclick="resetGame()" class="btn-3d btn-3d-green py-4 rounded-2xl font-black text-xl flex items-center justify-center gap-2 col-span-1 md:col-span-2">
+                    🔄 MAIN LAGI
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= REVIEW SCREEN ================= -->
+        <div id="screen-review" class="hidden bg-white rounded-3xl p-6 shadow-2xl border-4 border-white max-h-[90vh] flex flex-col">
+            <h2 class="text-3xl font-black text-center text-blue-600 mb-6">Tinjauan Jawaban</h2>
+            <div id="review-list" class="overflow-y-auto flex-grow space-y-4 pr-2 custom-scrollbar">
+                <!-- Populated by JS -->
+            </div>
+            <div class="mt-6 pt-4 border-t-2 border-slate-100 flex justify-center">
+                <button onclick="closeReview()" class="btn-3d btn-3d-blue px-8 py-3 rounded-xl font-bold text-lg">
+                    KEMBALI KE HASIL
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= CERTIFICATE (FOR PRINTING) ================= -->
+    <div id="certificate-print" class="hidden w-full h-full p-8 box-border">
+        <div class="w-full h-full border-[12px] border-double border-yellow-500 bg-amber-50 p-8 relative rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between items-center text-center">
+            
+            <!-- Ornaments -->
+            <div class="absolute top-4 left-4 text-6xl opacity-20">⭐</div>
+            <div class="absolute bottom-4 right-4 text-6xl opacity-20">🏆</div>
+            <div class="absolute top-4 right-4 text-6xl opacity-20">✖️</div>
+            <div class="absolute bottom-4 left-4 text-6xl opacity-20">➗</div>
+
+            <div class="mt-4">
+                <h1 class="text-5xl font-black text-blue-800 tracking-wider mb-2" style="font-family: 'Times New Roman', serif;">SERTIFIKAT PENGHARGAAN</h1>
+                <p class="text-xl text-yellow-700 font-bold tracking-widest">PETUALANG MATEMATIKA</p>
+            </div>
+
+            <div class="flex-grow flex flex-col justify-center items-center w-full px-10">
+                <p class="text-xl text-slate-600 mb-4">Diberikan dengan bangga kepada:</p>
+                <h2 id="cert-name" class="text-6xl font-black text-blue-700 border-b-4 border-yellow-400 pb-2 mb-4 w-3/4 text-center truncate">NAMA SISWA</h2>
+                <p class="text-xl text-slate-600 mb-2">Dari Sekolah:</p>
+                <h3 id="cert-school" class="text-3xl font-bold text-slate-800 mb-8">NAMA SEKOLAH</h3>
+                <p class="text-lg text-slate-700 max-w-2xl leading-relaxed font-semibold">
+                    Sebagai penghargaan atas partisipasi dan keberhasilannya menyelesaikan 
+                    <strong class="text-blue-600">Game Edukasi Matematika Kelas IV SD</strong> 
+                    materi Perkalian dan Pembagian Bilangan Cacah.
+                </p>
+            </div>
+
+            <div class="w-full flex justify-between items-end px-12 mb-4">
+                <div class="text-left border-t-2 border-slate-400 pt-2 w-48">
+                    <p class="font-bold text-slate-800">Skor: <span id="cert-score" class="text-blue-600 text-xl">300</span>/300</p>
+                    <p class="font-bold text-slate-800">Nilai: <span id="cert-percent" class="text-blue-600 text-xl">100</span></p>
+                    <p class="font-bold text-slate-800">Predikat: <span id="cert-predicate" class="text-green-600">Sangat Hebat!</span></p>
+                    <p class="text-sm text-slate-500 mt-1">Tgl: <span id="cert-date">01-01-2026</span></p>
+                </div>
+                
+                <div class="text-center w-48 flex flex-col items-center">
+                    <div class="w-24 h-24 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg border-4 border-yellow-500 mb-2">
+                        <span class="text-4xl">🏅</span>
+                    </div>
+                    <p class="font-bold text-sm text-slate-500 mt-2">Nomor: <span id="cert-id" class="text-xs">ID-12345</span></p>
+                </div>
+
+                <div class="text-center w-48">
+                    <div class="h-20 flex items-end justify-center">
+                        <span class="text-3xl font-black text-blue-300" style="font-family: cursive;">Guru Kelas IV</span>
+                    </div>
+                    <div class="border-t-2 border-slate-800 pt-2">
+                        <p class="font-bold text-slate-800">Guru Kelas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= DATA SOAL =================
+        const rawQuestions = [
+            // LEVEL 1: PENJELAJAH ANGKA (Basic)
+            { l: 1, q: "5 × 6 = ....", a: "30", o: ["25", "35", "40"], exp: "5 dikali 6 sama dengan 30." },
+            { l: 1, q: "42 ÷ 7 = ....", a: "6", o: ["5", "7", "8"], exp: "42 dibagi 7 sama dengan 6." },
+            { l: 1, q: "8 × 9 = ....", a: "72", o: ["64", "81", "74"], exp: "8 dikali 9 sama dengan 72." },
+            { l: 1, q: "64 ÷ 8 = ....", a: "8", o: ["6", "7", "9"], exp: "64 dibagi 8 sama dengan 8 karena 8 x 8 = 64." },
+            { l: 1, q: "12 × 3 = ....", a: "36", o: ["26", "46", "32"], exp: "12 dikali 3 sama dengan 36." },
+            { l: 1, q: "45 ÷ 5 = ....", a: "9", o: ["8", "7", "10"], exp: "45 dibagi 5 sama dengan 9." },
+            { l: 1, q: "7 × 7 = ....", a: "49", o: ["42", "56", "35"], exp: "7 dikali 7 sama dengan 49." },
+            { l: 1, q: "81 ÷ 9 = ....", a: "9", o: ["8", "7", "10"], exp: "81 dibagi 9 sama dengan 9." },
+            { l: 1, q: "10 × 10 = ....", a: "100", o: ["90", "110", "1000"], exp: "10 dikali 10 sama dengan 100." },
+            { l: 1, q: "50 ÷ 5 = ....", a: "10", o: ["5", "15", "20"], exp: "50 dibagi 5 sama dengan 10." },
+            
+            // LEVEL 2: PETUALANG CERDAS (Medium)
+            { l: 2, q: "24 × 3 = ....", a: "72", o: ["62", "82", "92"], exp: "24 dikali 3 adalah 72. (20x3 + 4x3 = 60+12 = 72)" },
+            { l: 2, q: "96 ÷ 8 = ....", a: "12", o: ["11", "13", "14"], exp: "96 dibagi 8 sama dengan 12." },
+            { l: 2, q: "15 × 5 = ....", a: "75", o: ["65", "85", "55"], exp: "15 dikali 5 sama dengan 75." },
+            { l: 2, q: "105 ÷ 7 = ....", a: "15", o: ["13", "14", "16"], exp: "105 dibagi 7 sama dengan 15." },
+            { l: 2, q: "Ibu memiliki 6 kotak pensil. Setiap kotak berisi 12 pensil. Berapa jumlah seluruh pensil?", a: "72 pensil", o: ["62 pensil", "82 pensil", "60 pensil"], exp: "Jumlah pensil = 6 kotak × 12 pensil = 72 pensil." },
+            { l: 2, q: "Sebanyak 84 permen dibagikan sama rata kepada 7 anak. Berapa permen yang diterima setiap anak?", a: "12 permen", o: ["11 permen", "13 permen", "14 permen"], exp: "Jumlah permen per anak = 84 ÷ 7 = 12 permen." },
+            { l: 2, q: "32 × 4 = ....", a: "128", o: ["118", "138", "148"], exp: "32 dikali 4 sama dengan 128." },
+            { l: 2, q: "144 ÷ 12 = ....", a: "12", o: ["14", "10", "11"], exp: "144 dibagi 12 sama dengan 12." },
+            { l: 2, q: "Ada 5 keranjang mangga, setiap keranjang berisi 25 buah. Berapa total mangganya?", a: "125 buah", o: ["100 buah", "150 buah", "115 buah"], exp: "Total mangga = 5 × 25 = 125 buah." },
+            { l: 2, q: "120 buku ditata dalam 6 rak sama banyak. Berapa buku di setiap rak?", a: "20 buku", o: ["15 buku", "25 buku", "30 buku"], exp: "Jumlah buku per rak = 120 ÷ 6 = 20 buku." },
+
+            // LEVEL 3: MASTER MATEMATIKA (Hard)
+            { l: 3, q: "125 × 4 = ....", a: "500", o: ["400", "450", "550"], exp: "125 dikali 4 sama dengan 500." },
+            { l: 3, q: "256 ÷ 16 = ....", a: "16", o: ["14", "18", "15"], exp: "256 dibagi 16 sama dengan 16." },
+            { l: 3, q: "45 × 12 = ....", a: "540", o: ["520", "560", "450"], exp: "45 dikali 12 sama dengan 540." },
+            { l: 3, q: "375 ÷ 15 = ....", a: "25", o: ["15", "35", "45"], exp: "375 dibagi 15 sama dengan 25." },
+            { l: 3, q: "Pak Tani memanen 24 karung beras. Setiap karung beratnya 25 kg. Berapa kg total panen?", a: "600 kg", o: ["500 kg", "700 kg", "550 kg"], exp: "Total panen = 24 × 25 = 600 kg." },
+            { l: 3, q: "500 butir telur dimasukkan ke dalam kotak yang masing-masing memuat 20 telur. Butuh berapa kotak?", a: "25 kotak", o: ["20 kotak", "30 kotak", "15 kotak"], exp: "Jumlah kotak = 500 ÷ 20 = 25 kotak." },
+            { l: 3, q: "Hasil dari (15 × 8) ÷ 4 adalah ....", a: "30", o: ["20", "40", "50"], exp: "Kerjakan dalam kurung dulu: 15 × 8 = 120. Lalu 120 ÷ 4 = 30." },
+            { l: 3, q: "600 ÷ 25 = ....", a: "24", o: ["20", "22", "26"], exp: "600 dibagi 25 sama dengan 24." },
+            { l: 3, q: "Sebuah pabrik membuat 150 mainan setiap hari. Berapa mainan yang dibuat dalam 14 hari?", a: "2.100 mainan", o: ["2.000 mainan", "1.500 mainan", "2.500 mainan"], exp: "Total mainan = 150 × 14 = 2.100 mainan." },
+            { l: 3, q: "Harga 12 buah buku adalah Rp36.000. Berapa harga 1 buah buku?", a: "Rp3.000", o: ["Rp2.000", "Rp4.000", "Rp3.500"], exp: "Harga 1 buku = 36.000 ÷ 12 = 3.000." }
+        ];
+
+        // ================= STATE =================
+        let state = {
+            name: '',
+            school: '',
+            score: 0,
+            currentQIndex: 0,
+            questions: [],
+            answersHistory: [], // { qObj, userAnswer, isCorrect }
+            soundEnabled: true,
+            totalQuestions: 30,
+            timerInterval: null,
+            timeLeft: 10
+        };
+
+        // ================= AUDIO SYSTEM (Offline/No External Files) =================
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (!state.soundEnabled) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            const now = audioCtx.currentTime;
+            
+            if (type === 'start') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+                osc.frequency.exponentialRampToValueAtTime(1320, now + 0.2);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'win') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'click') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, now);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'gameover') {
+                osc.type = 'sine';
+                // Fanfare
+                [440, 554.37, 659.25, 880].forEach((freq, i) => {
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    osc2.type = 'square';
+                    osc2.frequency.value = freq;
+                    gain2.gain.setValueAtTime(0, now + i*0.15);
+                    gain2.gain.linearRampToValueAtTime(0.2, now + i*0.15 + 0.05);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, now + i*0.15 + 0.4);
+                    osc2.start(now + i*0.15);
+                    osc2.stop(now + i*0.15 + 0.4);
+                });
+            }
+        }
+
+        // ================= UTILITIES =================
+        function shuffleArray(array) {
+            let curId = array.length;
+            while (0 !== curId) {
+                let randId = Math.floor(Math.random() * curId);
+                curId -= 1;
+                let tmp = array[curId];
+                array[curId] = array[randId];
+                array[randId] = tmp;
+            }
+            return array;
+        }
+
+        function showScreen(screenId) {
+            ['screen-start', 'screen-game', 'screen-result', 'screen-review'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        // ================= LOGIC =================
+
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            const btn = document.getElementById('btn-sound');
+            if (state.soundEnabled) {
+                btn.innerHTML = '🔊 SUARA ON';
+                btn.classList.replace('btn-3d-slate', 'btn-3d-yellow');
+                playSound('click');
+            } else {
+                btn.innerHTML = '🔇 SUARA OFF';
+                btn.classList.replace('btn-3d-yellow', 'btn-3d-slate');
+            }
+        }
+
+        function toggleFullScreen() {
+            playSound('click');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function startGame() {
+            const nameInput = document.getElementById('input-name').value.trim();
+            const schoolInput = document.getElementById('input-school').value.trim();
+            
+            if (nameInput === '' || schoolInput === '') {
+                document.getElementById('start-error').classList.remove('hidden');
+                playSound('wrong');
+                return;
+            }
+            
+            document.getElementById('start-error').classList.add('hidden');
+            
+            state.name = nameInput;
+            state.school = schoolInput;
+            state.score = 0;
+            state.currentQIndex = 0;
+            state.answersHistory = [];
+            clearInterval(state.timerInterval);
+            
+            // Prepare questions (Shuffle within levels to maintain progression)
+            let level1 = shuffleArray(rawQuestions.filter(q => q.l === 1));
+            let level2 = shuffleArray(rawQuestions.filter(q => q.l === 2));
+            let level3 = shuffleArray(rawQuestions.filter(q => q.l === 3));
+            
+            state.questions = [...level1, ...level2, ...level3];
+            
+            playSound('start');
+            showScreen('screen-game');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const qData = state.questions[state.currentQIndex];
+            
+            // Update Header
+            document.getElementById('q-counter').innerText = `${state.currentQIndex + 1}/${state.totalQuestions}`;
+            document.getElementById('score-display').innerText = state.score;
+            
+            const levelBadge = document.getElementById('level-badge');
+            const levelTitle = document.getElementById('level-title');
+            
+            if(qData.l === 1) {
+                levelBadge.innerText = "Level 1";
+                levelBadge.className = "bg-blue-500 text-white px-3 py-1 rounded-lg font-bold text-sm md:text-base shadow-sm";
+                levelTitle.innerText = "PENJELAJAH ANGKA";
+                levelTitle.className = "absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-400 to-blue-600 text-white px-6 py-1 rounded-full font-bold shadow-md text-sm md:text-base border-2 border-white";
+            } else if(qData.l === 2) {
+                levelBadge.innerText = "Level 2";
+                levelBadge.className = "bg-green-500 text-white px-3 py-1 rounded-lg font-bold text-sm md:text-base shadow-sm";
+                levelTitle.innerText = "PETUALANG CERDAS";
+                levelTitle.className = "absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-green-400 to-green-600 text-white px-6 py-1 rounded-full font-bold shadow-md text-sm md:text-base border-2 border-white";
+            } else {
+                levelBadge.innerText = "Level 3";
+                levelBadge.className = "bg-purple-500 text-white px-3 py-1 rounded-lg font-bold text-sm md:text-base shadow-sm";
+                levelTitle.innerText = "MASTER MATEMATIKA";
+                levelTitle.className = "absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-400 to-purple-600 text-white px-6 py-1 rounded-full font-bold shadow-md text-sm md:text-base border-2 border-white";
+            }
+
+            // Render Text
+            document.getElementById('question-text').innerText = qData.q;
+            
+            // Prepare Options
+            let options = [qData.a, ...qData.o];
+            options = shuffleArray(options);
+            
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            
+            const labels = ['A', 'B', 'C', 'D'];
+            
+            options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "btn-option flex items-center p-4 md:p-6 rounded-2xl text-left w-full group";
+                btn.onclick = () => handleAnswer(opt, btn);
+                
+                btn.innerHTML = `
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center font-black text-xl mr-4 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors shrink-0 border-2 border-slate-200">
+                        ${labels[index]}
+                    </div>
+                    <div class="text-xl md:text-2xl font-bold flex-grow break-words">
+                        ${opt}
+                    </div>
+                `;
+                grid.appendChild(btn);
+            });
+            
+            // Add pop animation to question box
+            const qBox = document.getElementById('screen-game').querySelector('.bg-white');
+            qBox.classList.remove('animate-pop-in');
+            void qBox.offsetWidth; // trigger reflow
+            qBox.classList.add('animate-pop-in');
+
+            // Start Timer for the question
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(state.timerInterval);
+            state.timeLeft = 10;
+            updateTimerUI();
+            
+            state.timerInterval = setInterval(() => {
+                state.timeLeft--;
+                updateTimerUI();
+                
+                if (state.timeLeft <= 0) {
+                    clearInterval(state.timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            const timerBar = document.getElementById('timer-bar');
+            const percentage = (state.timeLeft / 10) * 100;
+            timerBar.style.width = `${percentage}%`;
+            
+            if (state.timeLeft > 5) {
+                timerBar.className = "bg-green-500 h-full transition-all duration-1000 ease-linear";
+            } else if (state.timeLeft > 3) {
+                timerBar.className = "bg-yellow-500 h-full transition-all duration-1000 ease-linear";
+            } else {
+                timerBar.className = "bg-red-500 h-full transition-all duration-1000 ease-linear";
+            }
+        }
+
+        function handleTimeOut() {
+            const qData = state.questions[state.currentQIndex];
+            
+            // Disable all buttons immediately
+            const allBtns = document.querySelectorAll('.btn-option');
+            allBtns.forEach(b => { b.disabled = true; b.onclick = null; });
+            
+            playSound('wrong');
+            
+            // Highlight correct answer
+            allBtns.forEach(b => {
+                if(b.innerText.includes(qData.a)) {
+                    b.classList.replace('btn-option', 'bg-green-200');
+                    b.classList.add('border-green-400');
+                }
+            });
+            
+            // Save history
+            state.answersHistory.push({
+                qObj: qData,
+                userAnswer: "Waktu Habis",
+                isCorrect: false
+            });
+            
+            // Show Feedback Modal after short delay
+            setTimeout(() => {
+                showFeedback(false, qData.exp, true);
+            }, 600);
+        }
+
+        function handleAnswer(selectedOpt, btnElement) {
+            clearInterval(state.timerInterval); // Stop timer when answered
+            const qData = state.questions[state.currentQIndex];
+            const isCorrect = (selectedOpt === qData.a);
+            
+            // Disable all buttons immediately
+            const allBtns = document.querySelectorAll('.btn-option');
+            allBtns.forEach(b => { b.disabled = true; b.onclick = null; });
+            
+            if (isCorrect) {
+                state.score += 10;
+                playSound('win');
+                btnElement.classList.replace('btn-option', 'bg-green-400');
+                btnElement.classList.add('text-white', 'border-green-600');
+                btnElement.querySelector('div').classList.replace('bg-slate-100', 'bg-green-500');
+                btnElement.querySelector('div').classList.replace('text-slate-500', 'text-white');
+            } else {
+                playSound('wrong');
+                btnElement.classList.replace('btn-option', 'bg-red-400');
+                btnElement.classList.add('text-white', 'border-red-600');
+                btnElement.querySelector('div').classList.replace('bg-slate-100', 'bg-red-500');
+                btnElement.querySelector('div').classList.replace('text-slate-500', 'text-white');
+                
+                // Highlight correct answer
+                allBtns.forEach(b => {
+                    if(b.innerText.includes(qData.a)) {
+                        b.classList.replace('btn-option', 'bg-green-200');
+                        b.classList.add('border-green-400');
+                    }
+                });
+            }
+            
+            document.getElementById('score-display').innerText = state.score;
+            
+            // Save history
+            state.answersHistory.push({
+                qObj: qData,
+                userAnswer: selectedOpt,
+                isCorrect: isCorrect
+            });
+            
+            // Show Feedback Modal after short delay
+            setTimeout(() => {
+                showFeedback(isCorrect, qData.exp);
+            }, 600);
+        }
+
+        function showFeedback(isCorrect, explanation, isTimeout = false) {
+            const modal = document.getElementById('modal-feedback');
+            const icon = document.getElementById('feedback-icon');
+            const title = document.getElementById('feedback-title');
+            const msg = document.getElementById('feedback-message');
+            const exp = document.getElementById('feedback-explanation');
+            const box = document.getElementById('feedback-box');
+            
+            if(isCorrect) {
+                icon.innerText = "🌟";
+                title.innerText = "HEBAT!";
+                title.className = "text-3xl font-black mb-2 text-green-500";
+                msg.innerText = "Jawabanmu Benar! (+10 Poin)";
+                box.className = "bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center transform scale-100 transition-transform duration-300 border-8 border-green-300";
+                if(state.soundEnabled) shootConfettiOnce();
+            } else {
+                icon.innerText = isTimeout ? "⏱️" : "💪";
+                title.innerText = isTimeout ? "WAKTU HABIS!" : "TETAP SEMANGAT!";
+                title.className = "text-3xl font-black mb-2 text-orange-500";
+                msg.innerText = isTimeout ? "Waktu pengerjaan soal ini sudah habis." : "Ayo coba lagi di soal berikutnya!";
+                box.className = "bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center transform scale-100 transition-transform duration-300 border-8 border-orange-300";
+            }
+            
+            exp.innerText = explanation;
+            modal.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            document.getElementById('modal-feedback').classList.add('hidden');
+            
+            state.currentQIndex++;
+            
+            if (state.currentQIndex < state.totalQuestions) {
+                renderQuestion();
+            } else {
+                finishGame();
+            }
+        }
+
+        function finishGame() {
+            playSound('gameover');
+            if(state.soundEnabled) shootConfetti();
+            
+            const correctCount = state.answersHistory.filter(a => a.isCorrect).length;
+            const wrongCount = state.totalQuestions - correctCount;
+            const percentage = Math.round((correctCount / state.totalQuestions) * 100);
+            
+            let predicate = "";
+            let predClass = "";
+            if(percentage >= 90) { predicate = "Sangat Hebat!"; predClass = "from-green-400 to-emerald-500"; }
+            else if(percentage >= 80) { predicate = "Hebat!"; predClass = "from-blue-400 to-blue-600"; }
+            else if(percentage >= 70) { predicate = "Bagus!"; predClass = "from-yellow-400 to-orange-500"; }
+            else { predicate = "Tetap Semangat, Terus Berlatih!"; predClass = "from-orange-400 to-red-500"; }
+            
+            // Populate Result Screen
+            document.getElementById('result-score').innerText = state.score;
+            document.getElementById('res-name').innerText = state.name;
+            document.getElementById('res-school').innerText = state.school;
+            document.getElementById('res-correct').innerText = correctCount;
+            document.getElementById('res-wrong').innerText = wrongCount;
+            document.getElementById('res-percent').innerText = percentage;
+            
+            const predBox = document.getElementById('result-predicate-box');
+            predBox.innerText = `Predikat: ${predicate}`;
+            predBox.className = `bg-gradient-to-r ${predClass} p-4 rounded-xl text-white font-black text-2xl md:text-3xl mb-8 shadow-md`;
+            
+            // Populate Certificate Data
+            document.getElementById('cert-name').innerText = state.name;
+            document.getElementById('cert-school').innerText = state.school;
+            document.getElementById('cert-score').innerText = state.score;
+            document.getElementById('cert-percent').innerText = percentage;
+            document.getElementById('cert-predicate').innerText = predicate;
+            
+            const today = new Date();
+            const dateStr = `${today.getDate().toString().padStart(2,'0')}-${(today.getMonth()+1).toString().padStart(2,'0')}-${today.getFullYear()}`;
+            document.getElementById('cert-date').innerText = dateStr;
+            document.getElementById('cert-id').innerText = `MTK4-${Math.floor(Math.random()*90000) + 10000}`;
+
+            showScreen('screen-result');
+        }
+
+        function prepareAndPrintCertificate() {
+            playSound('click');
+            // Browser print dialog handles both physical printing and Save to PDF
+            window.print();
+        }
+
+        function showReview() {
+            playSound('click');
+            const list = document.getElementById('review-list');
+            list.innerHTML = '';
+            
+            state.answersHistory.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-xl border-2 ${item.isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;
+                
+                div.innerHTML = `
+                    <p class="font-bold text-slate-800 mb-2">${idx + 1}. ${item.qObj.q}</p>
+                    <div class="text-sm space-y-1">
+                        <p><span class="text-slate-500">Jawabanmu:</span> <span class="font-bold ${item.isCorrect ? 'text-green-600' : 'text-red-500'}">${item.userAnswer}</span> ${item.isCorrect ? '✅' : '❌'}</p>
+                        ${!item.isCorrect ? `<p><span class="text-slate-500">Kunci Jawaban:</span> <span class="font-bold text-green-600">${item.qObj.a}</span></p>` : ''}
+                        <p class="text-slate-600 italic mt-2 bg-white/50 p-2 rounded">Pembahasan: ${item.qObj.exp}</p>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+            
+            showScreen('screen-review');
+        }
+
+        function closeReview() {
+            playSound('click');
+            showScreen('screen-result');
+        }
+
+        function resetGame() {
+            playSound('click');
+            stopConfetti();
+            clearInterval(state.timerInterval);
+            document.getElementById('input-name').value = '';
+            document.getElementById('input-school').value = '';
+            showScreen('screen-start');
+        }
+
+        // ================= CONFETTI ANIMATION =================
+        let confettiAnimationId;
+        let confettiActive = false;
+
+        function shootConfettiOnce() {
+            // A smaller burst for correct answers
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const pieces = [];
+            for(let i=0; i<30; i++){
+                pieces.push(createPiece(canvas));
+            }
+            
+            function animate() {
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                let active = false;
+                pieces.forEach(p => {
+                    updateAndDrawPiece(p, ctx, canvas);
+                    if(p.y < canvas.height) active = true;
+                });
+                if(active) requestAnimationFrame(animate);
+                else ctx.clearRect(0,0,canvas.width,canvas.height);
+            }
+            animate();
+        }
+
+        function shootConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const pieces = [];
+            for(let i=0; i<150; i++){
+                pieces.push(createPiece(canvas, true));
+            }
+            
+            confettiActive = true;
+            
+            function animate() {
+                if(!confettiActive) {
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    return;
+                }
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                let active = false;
+                pieces.forEach(p => {
+                    updateAndDrawPiece(p, ctx, canvas);
+                    if(p.y < canvas.height) active = true;
+                });
+                
+                // Add new pieces continuously
+                if(pieces.length < 150 && Math.random() < 0.1) {
+                    pieces.push(createPiece(canvas, true));
+                }
+
+                if(active) confettiAnimationId = requestAnimationFrame(animate);
+                else ctx.clearRect(0,0,canvas.width,canvas.height);
+            }
+            animate();
+            
+            // Stop automatically after 5 seconds
+            setTimeout(stopConfetti, 5000);
+        }
+
+        function stopConfetti() {
+            confettiActive = false;
+            cancelAnimationFrame(confettiAnimationId);
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+        }
+
+        function createPiece(canvas, isContinuous = false) {
+            return {
+                x: canvas.width / 2,
+                y: isContinuous ? -50 : canvas.height / 2,
+                vx: (Math.random() - 0.5) * (isContinuous ? 10 : 25),
+                vy: isContinuous ? Math.random() * 5 + 2 : (Math.random() - 1) * 20 - 5,
+                size: Math.random() * 10 + 8,
+                color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                rot: Math.random() * 360,
+                rotSpeed: (Math.random() - 0.5) * 10
+            };
+        }
+
+        function updateAndDrawPiece(p, ctx, canvas) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.3; // gravity
+            p.rot += p.rotSpeed;
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot * Math.PI/180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+            ctx.restore();
+        }
+
+        // Handle window resize for canvas
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('confetti-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+    </script>
+</body>
+</html>
