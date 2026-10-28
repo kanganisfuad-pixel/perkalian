@@ -297,12 +297,12 @@
                     <p class="font-bold text-sm text-slate-500 mt-2">Nomor: <span id="cert-id" class="text-xs">ID-12345</span></p>
                 </div>
 
-                <div class="text-center w-48">
-                    <div class="h-20 flex items-end justify-center">
-                        <span class="text-3xl font-black text-blue-300" style="font-family: cursive;">Guru Kelas IV</span>
+                <div class="text-center w-56">
+                    <div class="h-20 flex items-end justify-center pb-2">
+                        <span class="text-2xl font-black text-slate-700" style="font-family: cursive;">Anis Fuad, S.Pd</span>
                     </div>
                     <div class="border-t-2 border-slate-800 pt-2">
-                        <p class="font-bold text-slate-800">Guru Kelas</p>
+                        <p class="font-bold text-slate-800">Guru Kelas IV B</p>
                     </div>
                 </div>
             </div>
@@ -360,7 +360,7 @@
             soundEnabled: true,
             totalQuestions: 30,
             timerInterval: null,
-            timeLeft: 10
+            timeLeft: 15
         };
 
         // ================= AUDIO SYSTEM (Offline/No External Files) =================
@@ -576,7 +576,7 @@
 
         function startTimer() {
             clearInterval(state.timerInterval);
-            state.timeLeft = 10;
+            state.timeLeft = 15;
             updateTimerUI();
             
             state.timerInterval = setInterval(() => {
@@ -592,12 +592,12 @@
 
         function updateTimerUI() {
             const timerBar = document.getElementById('timer-bar');
-            const percentage = (state.timeLeft / 10) * 100;
+            const percentage = (state.timeLeft / 15) * 100;
             timerBar.style.width = `${percentage}%`;
             
-            if (state.timeLeft > 5) {
+            if (state.timeLeft > 7) {
                 timerBar.className = "bg-green-500 h-full transition-all duration-1000 ease-linear";
-            } else if (state.timeLeft > 3) {
+            } else if (state.timeLeft > 4) {
                 timerBar.className = "bg-yellow-500 h-full transition-all duration-1000 ease-linear";
             } else {
                 timerBar.className = "bg-red-500 h-full transition-all duration-1000 ease-linear";
